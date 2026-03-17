@@ -14,4 +14,4 @@ In progress: Currently working on Go API + database
 # Roadmap
 - Receipt image upload + AI parsing (async)
 - User accounts
-- Groccery inventory 
+- Groccery inventory + meal recommendations
