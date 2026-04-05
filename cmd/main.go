@@ -3,24 +3,19 @@ package main
 import (
 	"net/http"
 	"log"
+	"os"
+	"github.com/joho/godotenv"
 	"github.com/go-chi/chi/v5"
 	"encoding/json"
 	"context"
-    "fmt"
     "google.golang.org/genai"
 )
-
-type Recipe struct {
-	ID string `json:"id"`
-	Name string `json:"name"`
-	Ingredients []Item `json:"ingredients"`
-}
 
 type Item struct {
 	ID string `json:"id"`
 	Name string `json:"name"`
 	Price float64 `json:"price"`
-	Quantity int `json:"quantity"`
+	Quantity float64 `json:"quantity"`
 }
 
 type Receipt struct {
@@ -30,7 +25,25 @@ type Receipt struct {
 	Items []Item `json:"items"`
 }
 
+type Recipe struct {
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Ingredients []Item `json:"ingredients"`
+}
+
+var apiKey string
+
 func main() {
+	// Load API key from .env
+    if err := godotenv.Load(); err != nil {
+        log.Println("No .env file found")
+    }
+
+    apiKey = os.Getenv("GEMINI_API_KEY")
+    if apiKey == "" {
+        log.Fatal("GEMINI_API_KEY not set")
+    }
+
 	// HTTP router
 	router := chi.NewRouter()
 
@@ -56,34 +69,104 @@ func main() {
 // Plan: Add users after single-user functionality is complete
 
 func createReceipt(w http.ResponseWriter, r *http.Request) {
-	// Parse multipart form 
-    err := r.ParseMultipartForm(10 << 20)
-    if err != nil {
-        http.Error(w, "Error parsing form", http.StatusBadRequest)
-        return
-    }
+	// Parse multipart form
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		writeJSONError(w, http.StatusBadRequest, "Error parsing form: "+err.Error())
+		return
+	}
 
 	// Receives image of receipt
 	file, handler, err := r.FormFile("receipt_image")
-    if err != nil {
-        http.Error(w, "Error retrieving file", http.StatusBadRequest)
-        return
-    }
-    defer file.Close()
+	if err != nil {
+		writeJSONError(w, http.StatusBadRequest, "Error retrieving file: "+err.Error())
+		return
+	}
+	defer file.Close()
 
-	// Read file into mem so we can send it to Gemini
+	// Read file into memory so we can send it to Gemini
 	buf := make([]byte, handler.Size)
-    _, err = file.Read(buf)
-    if err != nil {
-        http.Error(w, "Error reading file", http.StatusInternalServerError)
-        return
-    }
+	_, err = file.Read(buf)
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Error reading file: "+err.Error())
+		return
+	}
 
-	// Gemini reads receipt -> converts to json
+	// Extract the MIME type
+	mimeType := handler.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = "image/jpeg"
+	}
 
-	// Planned: Parse json to save to db
+	// Initialize Gemini Client
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey:  apiKey,
+		Backend: genai.BackendGeminiAPI,
+	})
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to initialize Gemini client: "+err.Error())
+		return
+	}
+
+	// Only return JSON
+	config := &genai.GenerateContentConfig{
+		ResponseMIMEType: "application/json",
+	}
+
+	// Prompt with strict JSON structure
+	prompt := `Analyze this receipt. Extract the store name and a list of all items purchased.
+	You MUST respond with valid JSON matching this exact structure:
+	{
+	"id": "12345",
+	"store": "Store Name Here",
+	"status": "Done",
+	"items": [
+		{"name": "Item 1", "price": 1.99, "quantity": 1},
+		{"name": "Item 2", "price": 5.50, "quantity": 2}
+	]
+	}`
+
+	// Send image + prompt to Gemini
+	contents := []*genai.Content{
+		{
+			Role: "user",
+			Parts: []*genai.Part{
+				{
+					InlineData: &genai.Blob{
+						MIMEType: mimeType,
+						Data:     buf,
+					},
+				},
+				{
+					Text: prompt,
+				},
+			},
+		},
+	}
+
+	result, err := client.Models.GenerateContent(
+		ctx,
+		"gemini-3-flash-preview",
+		contents,
+		config,
+	)
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "AI generation failed: "+err.Error())
+		return
+	}
+
+	// Unmarshal the JSON string directly into Go structs
 	var receipt Receipt
-	err := json.NewDecoder(r.Body).Decode(&receipt)
+	if err := json.Unmarshal([]byte(result.Text()), &receipt); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to parse AI response into structs: "+err.Error())
+		return
+	}
+
+	// Return the JSON to the client
+	// Plan: save receipt + items to database
+	// Further planned: save receipts + items per user
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(receipt)
 }
 
@@ -137,4 +220,14 @@ func deleteReceipt(w http.ResponseWriter, r *http.Request) {
 		"status": "deleted",
 	}
 	json.NewEncoder(w).Encode(res)
+}
+
+// Helper functions
+
+func writeJSONError(w http.ResponseWriter, status int, msg string) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(status)
+    json.NewEncoder(w).Encode(map[string]string{
+        "error": msg,
+    })
 }
