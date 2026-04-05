@@ -3,8 +3,9 @@ Full-stack service for turning grocery receipts into structured inventory using 
 
 # Stack
 - Go
-- PostgreSQL
+- Vite
 - React
+- PostgreSQL
 - Redis (Planned)
 - Gemini API
 
