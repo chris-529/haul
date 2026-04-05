@@ -1,11 +1,23 @@
+package main
+
 import (
 	"net/http"
 	"log"
 	"github.com/go-chi/chi/v5"
 	"encoding/json"
+	"context"
+    "fmt"
+    "google.golang.org/genai"
 )
 
+type Recipe struct {
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Ingredients []Item `json:"ingredients"`
+}
+
 type Item struct {
+	ID string `json:"id"`
 	Name string `json:"name"`
 	Price float64 `json:"price"`
 	Quantity int `json:"quantity"`
@@ -40,19 +52,38 @@ func main() {
 	http.ListenAndServe(":8080", router)
 }
 
-// In progress: "dummy receipt" data is being used
-// Plan: Hook up to DB with "dummy db data", then add users/auth
+// In progress: receiving raw image and saving receipt to database
+// Plan: Add users after single-user functionality is complete
 
 func createReceipt(w http.ResponseWriter, r *http.Request) {
-	receipt := Receipt{
-		ID: "1",
-		Store: "Ralphs",
-		Status: "Processing",
-		Items: []Item{
-			{Name: "Bananas", Price: 0.99, Quantity:1},
-			{Name: "Potatoes", Price: 0.50, Quantity:2},
-		},
-	}
+	// Parse multipart form 
+    err := r.ParseMultipartForm(10 << 20)
+    if err != nil {
+        http.Error(w, "Error parsing form", http.StatusBadRequest)
+        return
+    }
+
+	// Receives image of receipt
+	file, handler, err := r.FormFile("receipt_image")
+    if err != nil {
+        http.Error(w, "Error retrieving file", http.StatusBadRequest)
+        return
+    }
+    defer file.Close()
+
+	// Read file into mem so we can send it to Gemini
+	buf := make([]byte, handler.Size)
+    _, err = file.Read(buf)
+    if err != nil {
+        http.Error(w, "Error reading file", http.StatusInternalServerError)
+        return
+    }
+
+	// Gemini reads receipt -> converts to json
+
+	// Planned: Parse json to save to db
+	var receipt Receipt
+	err := json.NewDecoder(r.Body).Decode(&receipt)
 	json.NewEncoder(w).Encode(receipt)
 }
 
@@ -69,7 +100,7 @@ func getReceipts(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 	}
-	json.NewEncoder(w).Encode(receipt)
+	json.NewEncoder(w).Encode(receipts)
 }
 
 func getReceipt(w http.ResponseWriter, r *http.Request) {
