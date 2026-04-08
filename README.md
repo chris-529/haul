@@ -16,7 +16,7 @@ Done: image upload in demo ui -> formatted json receipt data (locally ran)
 
 Done: Database schema has been completed, with a join table for recipe ingredients since a single ingredient could belong to multiple different recipes. DB design is shown below in a diagram
 
-In progress: Currently working on setting up PostgreSQL db
+In progress: Currently working on setting up auth + saving receipts to database
 
 # Roadmap
 - Receipt image upload + AI parsing (async)
