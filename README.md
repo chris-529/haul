@@ -10,7 +10,9 @@ Full-stack service for turning grocery receipts into structured inventory using 
 - Gemini API
 
 # Status 
-In progress: Currently working on API routes + database. Working on backend and tests for backend up before going heavy on frontend.
+Done: REST Api routes set up
+Done: image upload in ui -> formatted json receipt data (locally ran)
+In progress: Currently working on setting up PostgreSQL db
 
 # Roadmap
 - Receipt image upload + AI parsing (async)
