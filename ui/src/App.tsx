@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './App.css'
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null)
@@ -7,31 +8,26 @@ export default function App() {
     if (!file) return
     const body = new FormData()
     body.append('receipt_image', file)
+
     const res = await fetch('/api/receipts', { method: 'POST', body })
     console.log(await res.json())
   }
 
-  const s = {
-    app: { background: '#121212', color: '#ccc', minHeight: '100vh', padding: '2rem', fontFamily: 'sans-serif' },
-    input: { background: '#222', border: '1px solid #333', color: '#ccc', padding: '6px', borderRadius: '4px' },
-    btn: { background: '#333', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', marginLeft: '8px' }
-  }
-
   return (
-    <div style={s.app}>
-      <h2 style={{ color: '#fff' }}>Haul</h2>
-      <input 
-        type="file" 
-        style={s.input} 
-        onChange={e => setFile(e.target.files?.[0] || null)} 
+    <div className="app">
+      <h2 className="title">Haul</h2>
+
+      <input
+        type="file"
+        className="input"
+        onChange={e => setFile(e.target.files?.[0] || null)}
       />
-      <button 
-        onClick={upload} 
-        style={s.btn}
-      >
+
+      <button onClick={upload} className="btn">
         Upload
       </button>
-      {file && <p style={{ color: '#666', fontSize: '14px' }}>{file.name}</p>}
+
+      {file && <p className="filename">{file.name}</p>}
     </div>
   )
 }

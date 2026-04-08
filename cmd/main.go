@@ -76,7 +76,7 @@ func createReceipt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Receives image of receipt
+	// Extract receipt image from request
 	file, handler, err := r.FormFile("receipt_image")
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Error retrieving file: "+err.Error())

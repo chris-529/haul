@@ -1,0 +1,34 @@
+.app {
+  background: #121212;
+  color: #ccc;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: sans-serif;
+}
+
+.title {
+  color: #fff;
+}
+
+.input {
+  background: #222;
+  border: 1px solid #333;
+  color: #ccc;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.filename {
+  color: #666;
+  font-size: 14px;
+}
