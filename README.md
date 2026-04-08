@@ -11,7 +11,9 @@ Full-stack service for turning grocery receipts into structured inventory using 
 
 # Status 
 Done: REST Api routes set up
+
 Done: image upload in ui -> formatted json receipt data (locally ran)
+
 In progress: Currently working on setting up PostgreSQL db
 
 # Roadmap
