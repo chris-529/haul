@@ -18,6 +18,6 @@ In progress: Currently working on setting up PostgreSQL db
 
 # Roadmap
 - Receipt image upload + AI parsing (async)
-- User accounts
+- User accounts (bcrypt)
 - Groccery inventory + meal recommendations
 - Reduce costs by replacing Gemini API with OCR + lightweight LLM
