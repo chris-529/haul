@@ -23,7 +23,7 @@ In progress: Login + saving receipts per user
 # Roadmap
 - Receipt image upload + AI parsing (async)
 - User accounts (bcrypt)
-- Groccery inventory + meal recommendations
+- Grocery inventory + meal recommendations
 - Reduce costs by replacing Gemini API with OCR + lightweight LLM
 
 # DB Schema
