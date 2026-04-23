@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/chris-529/haul/internal/models"
-	"github.com/jackc/pgx/v5/pgxpool" // Import the pool type
+	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
