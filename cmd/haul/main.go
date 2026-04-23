@@ -30,6 +30,9 @@ func main() {
 		APIKey: apiKey,
 	}
 
+	// Handler for Auth calls
+	authH := &handler.AuthHandler{DB: db.Pool}
+
 	// Routes
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
@@ -43,6 +46,9 @@ func main() {
 		r.Put("/{id}", h.UpdateReceipt)
 		r.Delete("/{id}", h.DeleteReceipt)
 	})
+
+	// Auth routes
+	r.Post("/api/register", authH.Register)
 
 	log.Println("Running on :8080")
 	http.ListenAndServe(":8080", r)

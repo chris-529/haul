@@ -22,3 +22,9 @@ type Recipe struct {
 	Name        string `json:"name"`
 	Ingredients []Item `json:"ingredients"`
 }
+
+type User struct {
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password,omitempty"`
+}
