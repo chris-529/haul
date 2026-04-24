@@ -18,9 +18,9 @@ Done: Database schema has been completed, with a join table for recipe ingredien
 
 Done: Auth + login functionality, with JWT for security and a middleware to force it
 
-Done: Saving receipts + items in receipt per user
+Done: Saving/retrieving receipts from a given userID
 
-In progress: Getting receipts + front end + more security measures
+In progress: Front end, more security measures, and completing the REST api
 
 # Roadmap
 - Receipt image upload + AI parsing (async)
