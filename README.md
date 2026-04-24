@@ -16,9 +16,11 @@ Done: image upload in demo ui -> formatted json receipt data (locally ran)
 
 Done: Database schema has been completed, with a join table for recipe ingredients since a single ingredient could belong to multiple different recipes. DB design is shown below in a diagram
 
-Done: Basic backend auth registration functionality (with bcrypt hashing)
+Done: Auth + login functionality, with JWT for security and a middleware to force it
 
-In progress: Login + saving receipts per user
+Done: Saving receipts + items in receipt per user
+
+In progress: Getting receipts + front end + more security measures
 
 # Roadmap
 - Receipt image upload + AI parsing (async)
