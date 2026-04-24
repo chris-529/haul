@@ -40,6 +40,8 @@ func main() {
 
 	// REST API
 	r.Route("/receipts", func(r chi.Router) {
+		r.Use(handler.AuthMiddleware)
+
 		r.Post("/", h.CreateReceipt)
 		r.Get("/", h.GetReceipts)
 		r.Get("/{id}", h.GetReceipt)
@@ -48,7 +50,8 @@ func main() {
 	})
 
 	// Auth routes
-	r.Post("/api/register", authH.Register)
+	r.Post("/register", authH.Register)
+	r.Post("/login", authH.Login)
 
 	log.Println("Running on :8080")
 	http.ListenAndServe(":8080", r)

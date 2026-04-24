@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 
+	"github.com/chris-529/haul/internal/db"
 	"github.com/chris-529/haul/internal/models"
 	"github.com/go-chi/chi/v5"
 	"google.golang.org/genai"
@@ -15,6 +16,15 @@ type ReceiptHandler struct {
 }
 
 func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
+
+	// Get username from JWT
+	userID, ok := GetUserIDFromContext(r.Context())
+	if !ok {
+		writeJSONError(w, http.StatusUnauthorized, "Missing user ID")
+		return
+	}
+
+	// Parse form for file
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, err.Error())
@@ -28,20 +38,19 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	buf := make([]byte, handler.Size)
-	_, err = file.Read(buf)
+	// Read in image to memory
+	buf, err := io.ReadAll(file)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	mimeType := handler.Header.Get("Content-Type")
 	if mimeType == "" {
 		mimeType = "image/jpeg"
 	}
 
-	ctx := context.Background()
-
+	// Init Gemini cli
+	ctx := r.Context()
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey:  h.APIKey,
 		Backend: genai.BackendGeminiAPI,
@@ -82,6 +91,7 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	// Generate a response
 	result, err := client.Models.GenerateContent(
 		ctx,
 		"gemini-3-flash-preview",
@@ -93,9 +103,24 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse the gemini response into a Receipt model
 	var receipt models.Receipt
-	json.Unmarshal([]byte(result.Text()), &receipt)
+	if err := json.Unmarshal([]byte(result.Text()), &receipt); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "failed to parse AI response")
+		return
+	}
 
+	receipt.UserID = userID
+	receipt.Status = "Done"
+
+	// Save this receipt to the database for userID
+	if err := db.SaveReceipt(ctx, userID, &receipt); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// For now just return the receipt json back
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(receipt)
 }
 

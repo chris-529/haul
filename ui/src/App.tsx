@@ -9,7 +9,14 @@ export default function App() {
     const body = new FormData()
     body.append('receipt_image', file)
 
-    const res = await fetch('/api/receipts', { method: 'POST', body })
+    const token = localStorage.getItem('token')
+    const res = await fetch('/receipts', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    })
     console.log(await res.json())
   }
 
