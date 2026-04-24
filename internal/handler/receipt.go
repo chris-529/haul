@@ -17,21 +17,24 @@ type ReceiptHandler struct {
 
 func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 
-	// Get username from JWT
+	// Get userID from JWT
 	userID, ok := GetUserIDFromContext(r.Context())
 	if !ok {
 		writeJSONError(w, http.StatusUnauthorized, "Missing user ID")
 		return
 	}
 
+	// Limit request body to 10MB
+	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+
 	// Parse form for file
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		writeJSONError(w, http.StatusBadRequest, err.Error())
+		writeJSONError(w, http.StatusBadRequest, "file too large or invalid form")
 		return
 	}
 
-	file, handler, err := r.FormFile("receipt_image")
+	file, _, err := r.FormFile("receipt_image")
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -44,9 +47,17 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	mimeType := handler.Header.Get("Content-Type")
-	if mimeType == "" {
-		mimeType = "image/jpeg"
+
+	// Detect file type
+	mimeType := detectImageMIME(buf)
+	allowedTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/webp": true,
+	}
+	if !allowedTypes[mimeType] {
+		writeJSONError(w, http.StatusBadRequest, "unsupported file type")
+		return
 	}
 
 	// Init Gemini cli
@@ -67,12 +78,11 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 	prompt := `Analyze this receipt. Extract the store name and a list of all items purchased.
 	You MUST respond with valid JSON matching this exact structure:
 	{
-	"id": "12345",
 	"store": "Store Name Here",
 	"status": "Done",
 	"items": [
-		{"name": "Item 1", "price": 1.99, "quantity": 1},
-		{"name": "Item 2", "price": 5.50, "quantity": 2}
+		{"name": "Item 1", "price": 1.99, "quantity": 1, "unit": ""},
+		{"name": "Item 2", "price": 5.50, "quantity": 2, "unit": ""}
 	]
 	}`
 
@@ -110,6 +120,12 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Make sure it has items
+	if len(receipt.Items) == 0 {
+		writeJSONError(w, http.StatusBadRequest, "no receipt items detected")
+		return
+	}
+
 	receipt.UserID = userID
 	receipt.Status = "Done"
 
@@ -125,7 +141,20 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ReceiptHandler) GetReceipts(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode([]models.Receipt{})
+	userID, ok := GetUserIDFromContext(r.Context())
+	if !ok {
+		writeJSONError(w, http.StatusUnauthorized, "Missing user ID")
+		return
+	}
+
+	receipts, err := db.GetReceipts(r.Context(), userID)
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(receipts)
 }
 
 func (h *ReceiptHandler) GetReceipt(w http.ResponseWriter, r *http.Request) {
@@ -139,8 +168,21 @@ func (h *ReceiptHandler) DeleteReceipt(w http.ResponseWriter, r *http.Request) {
 //Helper funcs
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(map[string]string{
 		"error": msg,
 	})
+}
+
+func detectImageMIME(buf []byte) string {
+	mimeType := http.DetectContentType(buf)
+
+	if mimeType == "application/octet-stream" && len(buf) >= 12 {
+		if string(buf[0:4]) == "RIFF" && string(buf[8:12]) == "WEBP" {
+			return "image/webp"
+		}
+	}
+
+	return mimeType
 }
