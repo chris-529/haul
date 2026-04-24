@@ -1,33 +1,43 @@
 # Haul
-Full-stack service for turning grocery receipts into structured inventory using AI, with meal suggestions based on available ingredients.
 
-# Stack
+Haul is a full-stack app for turning grocery receipts into structured inventory using AI, with planned meal suggestions based on available ingredients.
+
+## Stack
+
 - Go
-- Vite
 - React
+- Vite
 - PostgreSQL
-- Redis (Planned)
 - Gemini API
+- Redis planned
 
-# Status 
-Done: REST Api routes set up
+## Status
 
-Done: image upload in demo ui -> formatted json receipt data (locally ran)
+### Done
 
-Done: Database schema has been completed, with a join table for recipe ingredients since a single ingredient could belong to multiple different recipes. DB design is shown below in a diagram
+- REST API routes set up
+- Receipt image upload from demo UI
+- AI receipt parsing into structured JSON
+- PostgreSQL schema completed
+- Recipe ingredient join table designed for many-to-many recipe/ingredient relationships
+- Auth and login functionality with bcrypt password hashing
+- JWT-based authentication with protected route middleware
+- Saving and retrieving receipts by authenticated user ID
 
-Done: Auth + login functionality, with JWT for security and a middleware to force it
+### In Progress
 
-Done: Saving/retrieving receipts from a given userID
+- Frontend auth and receipt dashboard
+- Additional security measures
+- Completing remaining REST API handlers
 
-In progress: Front end, more security measures, and completing the REST api
+## Roadmap
 
-# Roadmap
-- Receipt image upload + AI parsing (async)
-- User accounts (bcrypt)
-- Grocery inventory + meal recommendations
-- Reduce costs by replacing Gemini API with OCR + lightweight LLM
+- Async receipt image upload and AI parsing
+- Grocery inventory tracking
+- Meal recommendations based on available ingredients
+- Cost reduction by replacing Gemini API with OCR + lightweight LLM
+- Redis integration for caching and/or background job support
 
-# DB Schema
+## Database Schema
 
 <img src="docs/db-diagram.png" width="400" />
