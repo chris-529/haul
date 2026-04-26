@@ -1,40 +1,19 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Receipts from './pages/Receipts'
+
 export default function App() {
-  const [file, setFile] = useState<File | null>(null)
-
-  const upload = async () => {
-    if (!file) return
-    const body = new FormData()
-    body.append('receipt_image', file)
-
-    const token = localStorage.getItem('token')
-    const res = await fetch('/receipts', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body,
-    })
-    console.log(await res.json())
-  }
-
   return (
-    <div className="app">
-      <h2 className="title">Haul</h2>
-
-      <input
-        type="file"
-        className="input"
-        onChange={e => setFile(e.target.files?.[0] || null)}
-      />
-
-      <button onClick={upload} className="btn">
-        Upload
-      </button>
-
-      {file && <p className="filename">{file.name}</p>}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/register" element={<Register />} />
+        <Route path="/dashboard" element={<Receipts />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
