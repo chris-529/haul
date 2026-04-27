@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Receipts from './pages/Receipts'
+import Login from './pages/login'
+import Register from './pages/register'
+import Receipts from './pages/receipts'
 
 export default function App() {
   return (
