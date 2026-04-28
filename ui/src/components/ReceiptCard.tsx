@@ -3,6 +3,7 @@ type Item = {
   name: string
   price: number
   quantity: number
+  unit: string
 }
 
 type Receipt = {
@@ -17,19 +18,26 @@ type ReceiptCardProps = {
 
 export default function ReceiptCard({ receipt }: ReceiptCardProps) {
   return (
-    <div className="receiptUploadCard">
+    <div className="receiptCard">
       <div className="receiptHeader">
         <h3>{receipt.store}</h3>
         <span>{receipt.status}</span>
+      </div>
+
+      <div className="receiptItemsHeader">
+        <span>Item</span>
+        <span>Qty</span>
+        <span>Price</span>
+        <span>Unit</span>
       </div>
 
       <ul className="receiptItems">
         {receipt.items.map((item, index) => (
           <li key={item.id || index} className="receiptItem">
             <span>{item.name}</span>
-            <span>
-              {item.quantity} — ${item.price}
-            </span>
+            <span>{item.quantity}</span>
+            <span>${item.price.toFixed(2)}</span>
+            <span>{item.unit}</span>
           </li>
         ))}
       </ul>
