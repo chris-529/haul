@@ -17,14 +17,19 @@ type ReceiptCardProps = {
 
 export default function ReceiptCard({ receipt }: ReceiptCardProps) {
   return (
-    <div>
-      <h3>{receipt.store}</h3>
-      <p>{receipt.status}</p>
+    <div className="receiptUploadCard">
+      <div className="receiptHeader">
+        <h3>{receipt.store}</h3>
+        <span>{receipt.status}</span>
+      </div>
 
-      <ul>
+      <ul className="receiptItems">
         {receipt.items.map((item, index) => (
-          <li key={item.id || index}>
-            {item.name}, {item.quantity} — ${item.price}
+          <li key={item.id || index} className="receiptItem">
+            <span>{item.name}</span>
+            <span>
+              {item.quantity} — ${item.price}
+            </span>
           </li>
         ))}
       </ul>

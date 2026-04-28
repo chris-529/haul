@@ -45,18 +45,28 @@ export default function Receipts() {
       <NavBar />
 
       <div className="receiptForm">
-        <input
-            type="file"
-            className="input"
-            onChange={e => setFile(e.target.files?.[0] || null)}
-        />
+        <p className="receiptFormTitle">Upload a receipt</p>
 
-        <button onClick={upload} className="btn">
-            Upload
-        </button>
-      </div>
+        <div className="receiptControls">
+            <label className="fileButton">
+                Choose receipt
+                <input
+                type="file"
+                onChange={e => setFile(e.target.files?.[0] || null)}
+                />
+            </label>
 
-      {file && <p className="filename">{file.name}</p>}
+            <button onClick={upload} className="btn">
+                Upload
+            </button>
+            </div>
+
+            <span className="fileName">
+            {file ? file.name : 'No file chosen'}
+            </span>
+
+        </div>
+
 
       {receipt && <ReceiptCard receipt={receipt} />}
     </div>
