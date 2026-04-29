@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
@@ -163,7 +164,33 @@ func (h *ReceiptHandler) GetReceipt(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ReceiptHandler) UpdateReceipt(w http.ResponseWriter, r *http.Request) {}
-func (h *ReceiptHandler) DeleteReceipt(w http.ResponseWriter, r *http.Request) {}
+
+func (h *ReceiptHandler) DeleteReceipt(w http.ResponseWriter, r *http.Request) {
+	userID, ok := GetUserIDFromContext(r.Context())
+	if !ok {
+		writeJSONError(w, http.StatusUnauthorized, "Missing user ID")
+		return
+	}
+
+	receiptID := chi.URLParam(r, "id")
+	if receiptID == "" {
+		writeJSONError(w, http.StatusBadRequest, "Missing receipt ID")
+		return
+	}
+
+	err := db.DeleteReceipt(r.Context(), userID, receiptID)
+	if err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			writeJSONError(w, http.StatusNotFound, "Receipt not found")
+			return
+		}
+
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
 
 //Helper funcs
 

@@ -2,9 +2,12 @@ package db
 
 import (
 	"context"
+	"errors"
 
 	"github.com/chris-529/haul/internal/models"
 )
+
+var ErrNotFound = errors.New("not found")
 
 // Save a given receipt for userID
 
@@ -142,4 +145,22 @@ func GetReceipts(ctx context.Context, userID string) ([]models.Receipt, error) {
 	}
 
 	return receipts, nil
+}
+
+func DeleteReceipt(ctx context.Context, userID string, receiptID string) error {
+	tag, err := Pool.Exec(ctx,
+		`DELETE FROM receipts
+		 WHERE id = $1 AND user_id = $2`,
+		receiptID,
+		userID,
+	)
+	if err != nil {
+		return err
+	}
+
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+
+	return nil
 }

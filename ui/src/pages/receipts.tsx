@@ -35,6 +35,22 @@ export default function Receipts() {
     setReceipts(prev => [newReceipt, ...prev])
   }
 
+  const handleDeleteReceipt = async (receiptId: string) => {
+    const token = localStorage.getItem('token')
+
+    const res = await fetch(`/receipts/${receiptId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!res.ok) return
+
+    setReceipts(prev => prev.filter(r => r.id !== receiptId))
+    setReceipt(null)
+  }
+
   return (
     <div className="app">
       <NavBar />
@@ -57,7 +73,12 @@ export default function Receipts() {
         </div>
 
         <div className="receiptDetailPanel">
-          {receipt && <ReceiptCard receipt={receipt} />}
+          {receipt && (
+            <ReceiptCard
+              receipt={receipt}
+              onDeleteReceipt={handleDeleteReceipt}
+            />
+          )}
         </div>
       </div>
 
