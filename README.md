@@ -2,6 +2,10 @@
 
 Haul is a full-stack app for turning grocery receipts into structured inventory using AI, with planned meal suggestions based on available ingredients. Deployment on Vercel is planned.
 
+## Preview
+
+<img src="docs/receipt_dashboard.png" width="800" />
+
 ## Stack
 
 - Go
