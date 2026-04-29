@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Item struct {
 	ID        string  `json:"id"`
 	ReceiptID string  `json:"receipt_id"`
@@ -10,11 +12,12 @@ type Item struct {
 }
 
 type Receipt struct {
-	ID     string `json:"id"`
-	UserID string `json:"user_id"`
-	Store  string `json:"store"`
-	Status string `json:"status"`
-	Items  []Item `json:"items"`
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Store     string    `json:"store"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	Items     []Item    `json:"items"`
 }
 
 type Recipe struct {

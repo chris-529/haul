@@ -20,12 +20,12 @@ func SaveReceipt(ctx context.Context, userID string, receipt *models.Receipt) er
 	// Save receipt into DB
 	err = tx.QueryRow(ctx,
 		`INSERT INTO receipts (user_id, store, status)
-		 VALUES ($1, $2, $3)
-		 RETURNING id`,
+		VALUES ($1, $2, $3)
+		RETURNING id, created_at`,
 		userID,
 		receipt.Store,
 		receipt.Status,
-	).Scan(&receiptID)
+	).Scan(&receiptID, &receipt.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -64,10 +64,10 @@ func GetReceipts(ctx context.Context, userID string) ([]models.Receipt, error) {
 	// Query all receipts belonging to userID
 	// TODO: Replace with JOIN
 	rows, err := Pool.Query(ctx,
-		`SELECT id, user_id, store, status
-		 FROM receipts
-		 WHERE user_id = $1
-		 ORDER BY id DESC`,
+		`SELECT id, user_id, store, status, created_at
+		FROM receipts
+		WHERE user_id = $1
+		ORDER BY created_at DESC`,
 		userID,
 	)
 	if err != nil {
@@ -86,6 +86,7 @@ func GetReceipts(ctx context.Context, userID string) ([]models.Receipt, error) {
 			&receipt.UserID,
 			&receipt.Store,
 			&receipt.Status,
+			&receipt.CreatedAt,
 		)
 		if err != nil {
 			return nil, err

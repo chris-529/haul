@@ -1,26 +1,33 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import '../App.css'
 import NavBar from '../components/NavBar'
 import ReceiptCard from '../components/ReceiptCard'
-
-type Item = {
-  id?: string
-  name: string
-  price: number
-  quantity: number
-  unit: string
-}
-
-type Receipt = {
-  store: string
-  status: string
-  items: Item[]
-}
+import type { Receipt } from '../types'
 
 export default function Receipts() {
   const [file, setFile] = useState<File | null>(null)
   const [receipt, setReceipt] = useState<Receipt | null>(null)
+  const [receipts, setReceipts] = useState<Receipt[]>([])
   const [showUpload, setShowUpload] = useState(false)
+
+  useEffect(() => {
+    const loadReceipts = async () => {
+      const token = localStorage.getItem('token')
+
+      const res = await fetch('/receipts/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!res.ok) return
+
+      const data = await res.json()
+      setReceipts(data)
+    }
+
+    loadReceipts()
+  }, [])
 
   const upload = async () => {
     if (!file) return
@@ -30,7 +37,7 @@ export default function Receipts() {
 
     const token = localStorage.getItem('token')
 
-    const res = await fetch('/receipts', {
+    const res = await fetch('/receipts/', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -38,8 +45,12 @@ export default function Receipts() {
       body,
     })
 
+    if (!res.ok) return
+
     const data = await res.json()
+
     setReceipt(data)
+    setReceipts(prev => [data, ...prev])
     setFile(null)
     setShowUpload(false)
   }
@@ -59,16 +70,25 @@ export default function Receipts() {
           </div>
 
           <div className="receiptList">
-            <p className="emptyText">No receipts yet</p>
+            {receipts.length === 0 ? (
+              <p className="emptyText">No receipts yet</p>
+            ) : (
+              receipts.map((r, index) => (
+                <button
+                  key={r.id || index}
+                  className="receiptListItem"
+                  onClick={() => setReceipt(r)}
+                >
+                  <span>{r.store}</span>
+                  <span>{r.status}</span>
+                </button>
+              ))
+            )}
           </div>
         </div>
 
         <div className="receiptDetailPanel">
-          {receipt ? (
-            <ReceiptCard receipt={receipt} />
-          ) : (
-            <p className="emptyText">Select or upload a receipt</p>
-          )}
+          {receipt && <ReceiptCard receipt={receipt} />}
         </div>
       </div>
 

@@ -1,16 +1,4 @@
-type Item = {
-  id?: string
-  name: string
-  price: number
-  quantity: number
-  unit: string
-}
-
-type Receipt = {
-  store: string
-  status: string
-  items: Item[]
-}
+import type { Receipt } from '../types'
 
 type ReceiptCardProps = {
   receipt: Receipt
@@ -21,7 +9,12 @@ export default function ReceiptCard({ receipt }: ReceiptCardProps) {
     <div className="receiptCard">
       <div className="receiptHeader">
         <h3>{receipt.store}</h3>
-        <span>{receipt.status}</span>
+        <span className="receiptStatus">{receipt.status}</span>
+        <span className="receiptDate">
+          {receipt.created_at
+            ? new Date(receipt.created_at).toLocaleDateString()
+            : 'No date'}
+        </span>
       </div>
 
       <div className="receiptItemsHeader">

@@ -16,36 +16,43 @@ body {
   justify-content: flex-start;
   align-items: center;
   padding-left: 24px;
+  border-bottom: 3px solid #B89656;
 }
 
 .title {
   color: #fff;
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 2rem;
+  font-size: 1.85rem;
 }
 
 .receiptsLayout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 20rem minmax(0, 1fr);
   gap: 1.5rem;
   padding: 2rem;
+  margin-top: 0.5rem;
 }
 
 .receiptListPanel {
   background: white;
   color: #222;
   border-radius: 8px;
+  border: 2px solid #d6d6d6;
   padding: 1rem;
-  min-height: 500px;
+  height: calc(100vh - 12rem);
+  display: flex;
+  flex-direction: column;
 }
 
 .receiptDetailPanel {
+  width: min(50rem, 95%);
+  justify-self: center;
   background: white;
   color: #222;
   border-radius: 8px;
   padding: 1rem;
-  min-height: 500px;
+  border: 2px solid #d6d6d6;
 }
 
 .receiptListHeader {
@@ -53,7 +60,7 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 2px solid #d6d6d6;
   padding-bottom: 0.75rem;
 }
 
@@ -64,6 +71,40 @@ body {
 
 .receiptList {
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.receiptListItem {
+  width: 100%;
+  min-height: 3.5rem;
+  background: #f8f8f8;
+  color: #222;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+}
+
+.receiptListItem:hover {
+  background: #eeeeee;
+}
+
+.receiptListItem span:first-child {
+  font-weight: 600;
+}
+
+.receiptListItem span:last-child {
+  color: #666;
+  font-size: 0.8rem;
 }
 
 .emptyText {
@@ -136,12 +177,11 @@ body {
 }
 
 .receiptHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid black;
-  padding-bottom: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2.25rem;
+  border-bottom: 2px solid #d6d6d6;
 }
 
 .receiptHeader h3 {
@@ -149,9 +189,16 @@ body {
   font-size: 1.1rem;
 }
 
-.receiptHeader span {
+.receiptStatus {
   font-size: 0.85rem;
   color: #666;
+  justify-self: end;
+}
+
+.receiptDate {
+  grid-column: 1;
+  font-size: 0.85rem;
+  color: #777;
 }
 
 .receiptItemsHeader,
@@ -168,7 +215,7 @@ body {
   color: #666;
   font-size: 0.8rem;
   font-weight: 600;
-  border-bottom: 1px solid black;
+  border-bottom: 2px solid #d6d6d6;
 }
 
 .receiptItems {
