@@ -107,6 +107,11 @@ body {
   font-size: 0.8rem;
 }
 
+.receiptListItem.selected {
+  background: #e8eef5;
+  border-color: #005b96;
+}
+
 .emptyText {
   color: #777;
   font-size: 0.9rem;
