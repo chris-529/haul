@@ -19,23 +19,28 @@ Haul is a full-stack app for turning grocery receipts into structured inventory 
 
 ### Done
 
-- REST API routes set up
+- Built RESTful API routes with Go and chi
 - Receipt image upload from frontend
 - AI receipt parsing into structured JSON
 - PostgreSQL schema completed
 - Recipe ingredient join table designed for many-to-many recipe/ingredient relationships
-- Auth and login functionality with bcrypt password hashing
-- JWT-based authentication with protected route middleware
+- User registration and login
+- Password hashing with bcrypt
+- JWT-based authentication with backend route middleware
+- Frontend protected routes for authenticated pages
 - Saving and retrieving receipts by authenticated user ID
 - Receipt dashboard with per-user receipt list and selectable receipt detail view
 - Receipt deletion for authenticated users
+- Styled login and register pages
+- Navbar user menu with logout
+- Receipt upload loading state and basic upload error handling
 
 ### In Progress
 
-- Frontend auth polish
 - Completing remaining REST API handlers
 - Receipt editing/update flow
-- Additional security measures
+- Additional production security measures
+- Deployment setup
 
 ## Roadmap
 
