@@ -29,28 +29,30 @@ export default function Login() {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
+  <div className="authPage">
+      <div className="authBox">
+        <h2>Login</h2>
 
-      <form onSubmit={login}>
-        <input
-          type="email"
-          placeholder="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
+        <form className="authForm" onSubmit={login}>
+          <input
+            type="email"
+            placeholder="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            placeholder="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
 
-        <button type="submit">Login</button>
-      </form>
+          <button className="btn" type="submit">Login</button>
+        </form>
 
-      {message && <p>{message}</p>}
+        {message && <p className="authMessage">{message}</p>}
+      </div>
     </div>
   )
 }

@@ -284,3 +284,49 @@ body {
   cursor: pointer;
   font-size: 0.85rem;
 }
+
+/* LOGIN */
+
+.authPage {
+  min-height: 100vh;
+  background: #eeeeee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.authBox {
+  width: 22rem;
+  min-height: 22rem;
+  background: white;
+  color: #222;
+  border: 2px solid #d6d6d6;
+  border-radius: 8px;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.authBox h2 {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.authForm input {
+  padding: 0.65rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.authMessage {
+  color: #a33;
+  font-size: 0.9rem;
+  text-align: center;
+}
