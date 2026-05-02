@@ -11,9 +11,14 @@ export default function ReceiptUploadModal({
   onUploadSuccess,
 }: ReceiptUploadModalProps) {
   const [file, setFile] = useState<File | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const upload = async () => {
-    if (!file) return
+    if (!file || loading) return
+
+    setError('')
+    setLoading(true)
 
     const body = new FormData()
     body.append('receipt_image', file)
@@ -28,7 +33,11 @@ export default function ReceiptUploadModal({
       body,
     })
 
-    if (!res.ok) return
+    if (!res.ok) {
+      setError('Could not read receipt')
+      setLoading(false)
+      return
+    }
 
     const data = await res.json()
     onUploadSuccess(data)
@@ -45,12 +54,17 @@ export default function ReceiptUploadModal({
             Choose receipt
             <input
               type="file"
+              disabled={loading}
               onChange={e => setFile(e.target.files?.[0] || null)}
             />
           </label>
 
-          <button onClick={upload} className="btn">
-            Upload
+          <button
+            onClick={upload}
+            className="btn"
+            disabled={!file || loading}
+          >
+            {loading ? <span className="spinner" /> : 'Upload'}
           </button>
         </div>
 
@@ -58,7 +72,9 @@ export default function ReceiptUploadModal({
           {file ? file.name : 'No file chosen'}
         </span>
 
-        <button className="cancelBtn" onClick={onClose}>
+        {error && <p className="authMessage">{error}</p>}
+
+        <button className="cancelBtn" onClick={onClose} disabled={loading}>
           Cancel
         </button>
       </div>

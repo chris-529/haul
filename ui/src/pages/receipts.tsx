@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import '../App.css'
 import NavBar from '../components/NavBar'
 import ReceiptList from '../components/ReceiptList'
@@ -11,6 +12,8 @@ export default function Receipts() {
   const [receipts, setReceipts] = useState<Receipt[]>([])
   const [showUpload, setShowUpload] = useState(false)
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     const loadReceipts = async () => {
       const token = localStorage.getItem('token')
@@ -21,6 +24,12 @@ export default function Receipts() {
         },
       })
 
+      if (res.status === 401) {
+        localStorage.removeItem('token')
+        navigate('/auth/login')
+        return
+      }
+
       if (!res.ok) return
 
       const data = await res.json()
@@ -28,7 +37,7 @@ export default function Receipts() {
     }
 
     loadReceipts()
-  }, [])
+  }, [navigate])
 
   const handleUploadSuccess = (newReceipt: Receipt) => {
     setReceipt(newReceipt)
@@ -44,6 +53,12 @@ export default function Receipts() {
         Authorization: `Bearer ${token}`,
       },
     })
+
+    if (res.status === 401) {
+      localStorage.removeItem('token')
+      navigate('/auth/login')
+      return
+    }
 
     if (!res.ok) return
 

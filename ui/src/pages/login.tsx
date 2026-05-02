@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -29,7 +29,8 @@ export default function Login() {
   }
 
   return (
-  <div className="authPage">
+    <div className="authPage">
+      <h1 className="authBrand">Haul</h1>
       <div className="authBox">
         <h2>Login</h2>
 
@@ -52,6 +53,10 @@ export default function Login() {
         </form>
 
         {message && <p className="authMessage">{message}</p>}
+
+        <p className="authSwitch">
+          Don&apos;t have an account? <Link to="/auth/register">Register</Link>
+        </p>
       </div>
     </div>
   )
