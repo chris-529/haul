@@ -5,6 +5,7 @@ export default function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
 
   const navigate = useNavigate()
 
@@ -15,7 +16,11 @@ export default function Register() {
     const res = await fetch('/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email,
+        password,
+        invite_code: inviteCode,
+      }),
     })
 
     if (!res.ok) {
@@ -35,16 +40,23 @@ export default function Register() {
         <form className="authForm" onSubmit={register}>
           <input
             type="email"
-            placeholder="email"
+            placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
           />
 
           <input
             type="password"
-            placeholder="password"
+            placeholder="Password"
             value={password}
             onChange={e => setPassword(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Invite Code"
+            value={inviteCode}
+            onChange={e => setInviteCode(e.target.value)}
           />
 
           <button className="btn" type="submit">Register</button>
