@@ -4,6 +4,7 @@ Haul is a full-stack app for turning grocery receipts into structured inventory 
 
 ## Preview
 
+<img src="docs/auth.png" width="250" />
 <img src="docs/receipt_dashboard.png" width="800" />
 <img src="docs/meal_dashboard.png" width="800" />
 
