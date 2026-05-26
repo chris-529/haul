@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/chris-529/haul/internal/db"
 	"github.com/chris-529/haul/internal/handler"
@@ -53,6 +54,15 @@ func main() {
 	r.Post("/register", authH.Register)
 	r.Post("/login", authH.Login)
 
-	log.Println("Running on :8080")
-	http.ListenAndServe(":8080", r)
+	port := "8080"
+	srv := &http.Server{
+		Addr:         ":" + port,
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 60 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	log.Println("Running on :" + port)
+	log.Fatal(srv.ListenAndServe())
 }

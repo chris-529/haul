@@ -17,7 +17,6 @@ type ReceiptHandler struct {
 }
 
 func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
-
 	// Get userID from JWT
 	userID, ok := GetUserIDFromContext(r.Context())
 	if !ok {
@@ -25,11 +24,22 @@ func (h *ReceiptHandler) CreateReceipt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	canUpload, err := db.CanUploadReceiptToday(r.Context(), userID)
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "failed to check upload limit")
+		return
+	}
+
+	if !canUpload {
+		writeJSONError(w, http.StatusTooManyRequests, "daily receipt upload limit reached")
+		return
+	}
+
 	// Limit request body to 10MB
 	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
 
 	// Parse form for file
-	err := r.ParseMultipartForm(10 << 20)
+	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		writeJSONError(w, http.StatusBadRequest, "file too large or invalid form")
 		return

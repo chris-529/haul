@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -19,32 +18,75 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-
-	// Read in request as a user model
 	var u models.User
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	// Hash the password before saving
+	if u.Email == "" || u.Password == "" || u.InviteCode == "" {
+		http.Error(w, "Email, password, and invite code are required", http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+
+	tx, err := h.DB.Begin(ctx)
+	if err != nil {
+		http.Error(w, "Failed to start transaction", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	var inviteID string
+
+	err = tx.QueryRow(ctx,
+		`SELECT id
+		 FROM invite_codes
+		 WHERE code = $1
+		   AND used_at IS NULL
+		   AND expires_at > NOW()`,
+		u.InviteCode,
+	).Scan(&inviteID)
+
+	if err != nil {
+		http.Error(w, "Invalid or expired invite code", http.StatusUnauthorized)
+		return
+	}
+
 	hashed, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
 		return
 	}
 
-	// Save to DB
-	_, err = h.DB.Exec(context.Background(),
-		"INSERT INTO users (email, password_hash) VALUES ($1, $2)",
-		u.Email, string(hashed),
+	_, err = tx.Exec(ctx,
+		`INSERT INTO users (email, password_hash)
+		 VALUES ($1, $2)`,
+		u.Email,
+		string(hashed),
 	)
 	if err != nil {
 		http.Error(w, "User already exists", http.StatusConflict)
 		return
 	}
 
-	fmt.Println("Registration successful!")
+	_, err = tx.Exec(ctx,
+		`UPDATE invite_codes
+		 SET used_at = NOW()
+		 WHERE id = $1`,
+		inviteID,
+	)
+	if err != nil {
+		http.Error(w, "Failed to use invite code", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		http.Error(w, "Failed to create account", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 

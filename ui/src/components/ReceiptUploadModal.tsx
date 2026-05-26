@@ -34,7 +34,8 @@ export default function ReceiptUploadModal({
     })
 
     if (!res.ok) {
-      setError('Could not read receipt')
+      const data = await res.json().catch(() => null)
+      setError(data?.error || 'Could not read receipt')
       setLoading(false)
       return
     }

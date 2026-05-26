@@ -5,6 +5,8 @@ import Login from './pages/login'
 import Register from './pages/register'
 import Receipts from './pages/receipts'
 import ProtectedRoute from './components/ProtectedRoute'
+import Recipes from './pages/recipes'
+import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
 export default function App() {
   return (
@@ -20,6 +22,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Receipts />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/recipes"
+          element={
+            <ProtectedRoute>
+              <Recipes />
             </ProtectedRoute>
           }
         />

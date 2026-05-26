@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 export default function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const logout = () => {
     localStorage.removeItem('token')
@@ -12,7 +13,25 @@ export default function NavBar() {
 
   return (
     <nav className="navbar">
-      <h2 className="title">Haul</h2>
+      <div className="navLeft">
+        <h2 className="title">Haul</h2>
+
+        <div className="navButtons">
+          <Link
+            to="/dashboard"
+            className={`navButton ${location.pathname === '/dashboard' ? 'active' : ''}`}
+          >
+            Receipts
+          </Link>
+
+          <Link
+            to="/recipes"
+            className={`navButton ${location.pathname === '/recipes' ? 'active' : ''}`}
+          >
+            Recipes
+          </Link>
+        </div>
+      </div>
 
       <div className="userMenu">
         <button
@@ -20,7 +39,7 @@ export default function NavBar() {
           onClick={() => setMenuOpen(prev => !prev)}
           aria-label="User menu"
         >
-          👤
+          <i className="ti ti-user" aria-hidden="true" />
         </button>
 
         {menuOpen && (

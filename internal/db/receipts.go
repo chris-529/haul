@@ -164,3 +164,37 @@ func DeleteReceipt(ctx context.Context, userID string, receiptID string) error {
 
 	return nil
 }
+
+func CanUploadReceiptToday(ctx context.Context, userID string) (bool, error) {
+	var isAdmin bool
+
+	err := Pool.QueryRow(ctx,
+		`SELECT is_admin
+		 FROM users
+		 WHERE id = $1`,
+		userID,
+	).Scan(&isAdmin)
+	if err != nil {
+		return false, err
+	}
+
+	if isAdmin {
+		return true, nil
+	}
+
+	var count int
+
+	err = Pool.QueryRow(ctx,
+		`SELECT COUNT(*)
+		 FROM receipts
+		 WHERE user_id = $1
+		   AND created_at >= date_trunc('day', NOW())
+		   AND created_at < date_trunc('day', NOW()) + INTERVAL '1 day'`,
+		userID,
+	).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count < 10, nil
+}
